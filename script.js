@@ -6,16 +6,19 @@ const fromCurr = document.querySelector(".from select");
 const toCurr = document.querySelector(".to select");
 const msg = document.querySelector(".msg");
 
+// Populate dropdowns with countryList currencies
 for (let select of dropdowns) {
   for (let currCode in countryList) {
     let newOption = document.createElement("option");
     newOption.innerText = currCode;
     newOption.value = currCode;
+
     if (select.name === "from" && currCode === "USD") {
       newOption.selected = true;
     } else if (select.name === "to" && currCode === "INR") {
       newOption.selected = true;
     }
+
     select.append(newOption);
   }
 
@@ -24,6 +27,7 @@ for (let select of dropdowns) {
   });
 }
 
+// Update exchange rate
 const updateExchangeRate = async () => {
   const amountInput = document.querySelector(".amount input");
   let amtVal = parseFloat(amountInput.value) || 1;
@@ -35,7 +39,9 @@ const updateExchangeRate = async () => {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
-    if (!data.success) throw new Error("Conversion failed");
+
+    // Check valid response
+    if (!data.result || !data.info) throw new Error("Invalid API response");
 
     const rate = data.info.rate;
     const finalAmount = data.result.toFixed(2);
@@ -47,12 +53,14 @@ const updateExchangeRate = async () => {
   }
 };
 
+// Update flag image
 const updateFlag = (element) => {
   const countryCode = countryList[element.value];
   const img = element.parentElement.querySelector("img");
   img.src = `https://flagsapi.com/${countryCode}/flat/64.png`;
 };
 
+// Event listeners
 btn.addEventListener("click", (evt) => {
   evt.preventDefault();
   updateExchangeRate();
